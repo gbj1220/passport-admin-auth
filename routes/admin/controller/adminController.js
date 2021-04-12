@@ -1,6 +1,7 @@
 const Admin = require("../model/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../../users/model/User");
 
 const signUp = async (req, res) => {
   try {
@@ -47,12 +48,12 @@ const logIn = async (req, res) => {
         email: foundAdmin.email,
         username: foundAdmin.userName,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET_ADMIN,
       {
         expiresIn: "1d",
       }
     );
-
+    console.log("=== Successful Admin Login ===");
     res.json({
       jwtToken,
     });
@@ -61,19 +62,55 @@ const logIn = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateUserProfile = async (req, res) => {
   try {
+    let updatedUser = await User.findOneAndUpdate(
+      { email: req.body.email },
+      req.body,
+      { new: true }
+    );
+
     res.json({
       message: "Update Admin success!!",
-      admin: req.admin,
+      admin: updatedUser,
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
 };
 
+const getAllUsersProfile = async (req, res) => {
+  try {
+    let allUsersProfile = await User.find({});
+
+    res.json({
+      message: "Got all users",
+      users: allUsersProfile,
+    });
+  } catch {
+    res.status(500).json({
+      message: e.message,
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    let foundUser = await User.findOneAndDelete({ email: req.body.email });
+
+    res.json({
+      message: "Successfully Deleted",
+      user: foundUser,
+    });
+  } catch (e) {
+    message: e.message;
+  }
+};
+
 module.exports = {
   signUp,
   logIn,
-  updateProfile,
+  updateUserProfile,
+  getAllUsersProfile,
+  deleteUser,
 };
