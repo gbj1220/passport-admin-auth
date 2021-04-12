@@ -29,7 +29,7 @@ const logIn = async (req, res) => {
     const foundAdmin = await Admin.findOne({ email: req.body.email });
 
     if (!foundAdmin) {
-      throw { Message: "User not found! Please go sign up!" };
+      throw { Message: "Admin not found. Please go sign up!" };
     }
 
     const comparedPassword = await bcrypt.compare(
@@ -42,7 +42,6 @@ const logIn = async (req, res) => {
         Message: "Please check that your email and password are correct!",
       };
     }
-
     const jwtToken = jwt.sign(
       {
         email: foundAdmin.email,
@@ -57,16 +56,17 @@ const logIn = async (req, res) => {
     res.json({
       jwtToken,
     });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
 
-    const updateProfile = async (req, res) => {
-      try {
-        res.json({
-          message: "Update route for Admin success!!",
-        });
-      } catch (e) {
-        res.status(500).json({ message: e.message });
-      }
-    };
+const updateProfile = async (req, res) => {
+  try {
+    res.json({
+      message: "Update Admin success!!",
+      admin: req.admin,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
